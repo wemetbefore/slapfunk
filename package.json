@@ -11,5 +11,8 @@
   "devDependencies": {
     "node-fetch": "^3.3.2"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "firebase": "^11.2.0"
+  }
 }
