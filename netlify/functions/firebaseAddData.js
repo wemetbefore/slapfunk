@@ -25,8 +25,11 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
-            body: JSON.stringify(data),
-        };
+            body: JSON.stringify({
+                data: data,
+                test: 'TEST CONNECTION'
+            }),
+        }
     } catch (error) {
         return {
             statusCode: 500,
