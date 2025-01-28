@@ -1,33 +1,13 @@
 const { db } = require("./firebase");
 
-function getCorsHeaders(origin) {
-    return {
-        'Access-Control-Allow-Origin': origin || '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Accept, Origin',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Max-Age': '86400',
-        'Content-Type': 'application/json'
-    }
-}
-
-exports.handler = async (event) => {
-
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers: getCorsHeaders(event.headers.origin)
-        };
-    }
-
+exports.handler = async () => {
     try {
-        const data = JSON.parse(event.body);
-
-        // Add data to Firestore
-        const docRef = await db.collection("subscriptions").add(data);
+        const snapshot = await db.collection("subscriptions").get();
+        const data = snapshot.docs.map((doc) => doc.data());
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ id: docRef.id }),
+            body: JSON.stringify(data),
         };
     } catch (error) {
         return {
