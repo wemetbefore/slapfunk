@@ -11,7 +11,7 @@
   "devDependencies": {
     "node-fetch": "^3.3.2"
   },
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "firebase": "^11.2.0",
     "firebase-admin": "^13.0.2"
