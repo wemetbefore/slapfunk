@@ -12,4 +12,3 @@ if (!initializeApp.apps?.length) {
 const db = getFirestore();
 
 module.exports = { db };
-

@@ -19,7 +19,6 @@ exports.handler = async (event) => {
     }
     try {
 
-
         const snapshot = await db.collection("subscriptions").get();
         const data = snapshot.docs.map((doc) => doc.data());
 
