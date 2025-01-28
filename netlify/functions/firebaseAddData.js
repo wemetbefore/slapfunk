@@ -11,14 +11,14 @@ function getCorsHeaders(origin) {
 }
 
 exports.handler = async (event) => {
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers: getCorsHeaders(event.headers.origin)
-        };
-    }
-    try {
 
+    try {
+        if (event.httpMethod === 'OPTIONS') {
+            return {
+                statusCode: 200,
+                headers: getCorsHeaders(event.headers.origin)
+            };
+        }
         const snapshot = await db.collection("subscriptions").get();
         const data = snapshot.docs.map((doc) => doc.data());
 
