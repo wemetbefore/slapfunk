@@ -1,22 +1,22 @@
 function getCorsHeaders(origin) {
-  return {
-    'Access-Control-Allow-Origin': origin || '*',
-    'Access-Control-Allow-Headers': 'Content-Type, Accept, Origin',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Max-Age': '86400',
-    'Content-Type': 'application/json'
-  }
+    return {
+        'Access-Control-Allow-Origin': origin || '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept, Origin',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Max-Age': '86400',
+        'Content-Type': 'application/json'
+    }
 }
 exports.handler = async (event) => {
     try {
-    if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 200,
-      headers: getCorsHeaders(event.headers.origin)
-    };
-  }
+        if (event.httpMethod === 'OPTIONS') {
+            return {
+                statusCode: 200,
+                headers: getCorsHeaders(event.headers.origin)
+            };
+        }
 
-       const { refreshToken } = JSON.parse(event.body);
+        const { refreshToken } = JSON.parse(event.body);
         if (!refreshToken) {
             return {
                 statusCode: 400,
@@ -32,7 +32,7 @@ exports.handler = async (event) => {
                 client_secret: process.env.EVENTIX_CLIENT_SECRET,
                 refresh_token: refreshToken,
                 grant_type: "refresh_token"
-        })
+            })
         };
 
         // Make the API request
@@ -44,12 +44,13 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
-             body: JSON.stringify({
-                        accessToken: data.access_token,
-                        expiresAt: Date.now() + data.expires_in * 1000,
-                        refreshToken: data.refresh_token || refreshToken, // Fallback to the old refresh token if not provided
-                    })  };
-       
+            body: JSON.stringify({
+                accessToken: data.access_token,
+                expiresAt: Date.now() + data.expires_in * 1000,
+                refreshToken: data.refresh_token || refreshToken, // Fallback to the old refresh token if not provided
+            })
+        };
+
     } catch (error) {
         // Handle any unexpected errors
         return {

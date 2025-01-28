@@ -12,7 +12,7 @@ exports.handler = async (event) => {
     const clientId = process.env.EVENTIX_CLIENT_ID;
     const clientSecret = process.env.EVENTIX_CLIENT_SECRET;
     const code = process.env.EVENTIX_CODE_KEY;
-    
+
 
     // Your function logic here
     if (event.httpMethod === 'OPTIONS') {
@@ -22,7 +22,7 @@ exports.handler = async (event) => {
         };
     }
 
-    try {   
+    try {
         // Prepare payload
         const options = {
             "method": "POST",
