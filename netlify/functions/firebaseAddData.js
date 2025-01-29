@@ -129,18 +129,29 @@ async function validateUserDiscountCode(currentUserEmail) {
 }
 
 async function checkUserInDb(currentUser) {
-    let currentUserData = await db.collection('users').where('emailAddress', '==', currentUser.emailAddress).get();
+    let currentUserData = await db.collection('users').where('emailAddress', '==', currentUser.email).get();
     if (currentUserData) {
         return true;
     } else {
         let newUser = await db.collection('users').add({
-            emailAddress: currentUser.emailAddress,
+            emailAddress: currentUser.email,
             firstName: currentUser.firstName,
             lastName: currentUser.lastName,
             generatedCouponCode: false
         })
         return false;
     }
+}
+
+function generateCode(subscriptionName) {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "SF-" + subscriptionName.toUpperCase() + '-';
+
+    for (let i = 0; i < 10; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        code += characters[randomIndex];
+    }
+    return code;
 }
 exports.handler = async (event) => {
     try {
@@ -151,29 +162,32 @@ exports.handler = async (event) => {
             };
         }
         let currentUserData = event.body;
+        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.couponId).get();
 
+        //check if the user in db if not add
+        checkUserInDb(currentUserData);
 
-        let users = await db.collection('users').get();
-        let subscriptions = await db.collection('subscriptions').get();
         let eventixTokens = await db.collection('eventixTokens').get();
 
         if (currentUserData) {
-            if (checkUserInDb(currentUserData)) {
-                if (validateUserDiscountCode(currentUserData.emailAdress) && validateToken(eventixTokens)) {
-                    //generate coupon code
-                    generateCouponCode();
-                    //update db users
+            if (validateUserDiscountCode(currentUserData.email) && validateToken(eventixTokens)) {
+                //generate coupon code
+                let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
+                generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
+                //update db users
 
-                } else if (validateUserDiscountCode(currentUserData.emailAdress) && !validateToken(eventixTokens)) {
-                    //refresh token
-                    await refreshAccessToken().then(async () => {
-                        await generateCouponCode().then(async () => {
-                            //update db
-                        });
-                    });;
-                } else if (!validateUserDiscountCode) {
-                    //display alert - user already generated coupon code
-                }
+            } else if (validateUserDiscountCode(currentUserData.email) && !validateToken(eventixTokens)) {
+                //refresh token
+                await refreshAccessToken().then(async () => {
+                    let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
+                    await generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode).then(async () => {
+                        //update db
+                    });
+                });;
+            } else if (!validateUserDiscountCode) {
+                //display alert - user already generated coupon code
+                throw new Error("You've already generated a coupon code!");
+
             }
         }
 
@@ -181,9 +195,7 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                data: data,
-                test: 'TEST CONNECTION',
-                subscriptions: subscriptions
+                couponCode: generatedCouponCode
             }),
         }
     } catch (error) {
