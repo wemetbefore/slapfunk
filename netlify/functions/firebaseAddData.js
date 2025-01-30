@@ -193,9 +193,10 @@ exports.handler = async (event) => {
         let refreshToken = eventixTokens[0].refreshToken;
 
         //USER DATA
+        let currentUserData = JSON.parse(event.body);
         let usersSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.email).get();
         let currentUser = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        let currentUserData = JSON.parse(event.body);
+
 
         //SUBSCRIPTION DATA
         let currentUserSubscriptionSnapshot = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
@@ -206,8 +207,6 @@ exports.handler = async (event) => {
         let checkUserInDB = await checkUserInDb(currentUserData.payload);
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
-
-
 
         // let generatedCouponCode = generateCode(currentUserSubscriptionName)
         // let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
