@@ -32,8 +32,10 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         // Make the API call
         const response = await fetch(url, options);
         const data = await response.json();
+        const id = currentUser[0].id;
+        const updateObj = { generatedCouponCode: true };
 
-        await db.collection("users").doc(currentUser[0].id).update({ generatedCouponCode: true });
+        await db.collection("users").doc(id).update(updateObj);
         return {
             statusCode: 200,
             body: JSON.stringify(data),
@@ -95,8 +97,14 @@ async function refreshAccessToken(refreshToken, eventixToken) {
         // Make the API request
         const response = await fetch("https://auth.openticket.tech/tokens", options);
         const data = await response.json();
+        // const id = eventixToken[0].id;
+        // const updateObj = {
+        //     accessToken: data.access_Token,
+        //     refreshToken: data.refresh_token,
+        //     expiryDate: data.expires_in
+        // };
 
-        await db.collection("eventixTokens").doc(eventixToken[0].id).update({ generatedCouponCode: true });
+        // await db.collection("eventixTokens").doc(id).update(updateObj);
         return {
             statusCode: 200,
             body: JSON.stringify(data),
