@@ -225,7 +225,7 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 params: params,
                 subId: subId,
-                eventixToken: eventixToken
+                eventixToken: accessTokenId
             }),
         }
     } catch (error) {
