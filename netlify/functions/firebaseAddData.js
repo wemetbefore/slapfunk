@@ -5,8 +5,14 @@ const clientSecret = process.env.EVENTIX_CLIENT_SECRET;
 const code = process.env.EVENTIX_CODE_KEY;
 const companyId = process.env.EVENTIX_COMPANY_ID;
 
-async function generateCouponCode(couponId, eventixToken, generatedCode) {
+async function generateCouponCode(couponId, eventixToken, generatedCode, event) {
     try {
+        if (event.httpMethod === 'OPTIONS') {
+            return {
+                statusCode: 200,
+                headers: getCorsHeaders(event.headers.origin)
+            };
+        }
         // Prepare the request options
         const url = `https://api.eventix.io/coupon/${couponId}/codes`;
         const options = {
@@ -35,6 +41,7 @@ async function generateCouponCode(couponId, eventixToken, generatedCode) {
         // Return the generated coupon code data
         return {
             statusCode: 200,
+            headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify(data),
         };
     } catch (error) {
@@ -182,7 +189,7 @@ exports.handler = async (event) => {
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
         let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
-        let response = generateCouponCode(currentUserSubscription.docs[0].subscriptionId, eventixTokens, generatedCouponCode);
+        let response = generateCouponCode(currentUserSubscription.docs[0].subscriptionId, eventixTokens, generatedCouponCode, event);
 
         // if (currentUserData.payload) {
         //     if (validUserToGenerateCode && tokenIsValid) {
