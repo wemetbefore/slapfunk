@@ -186,9 +186,9 @@ exports.handler = async (event) => {
         }
 
         //EVENTIX DATA
-        // let eventixTokensSnapshot = await db.collection('eventixTokens').get();
-        // let eventixTokens = eventixTokensSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        // let refreshToken = eventixTokens[0].refreshToken;
+        let eventixTokensSnapshot = await db.collection('eventixTokens').get();
+        let eventixTokens = eventixTokensSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        let refreshToken = eventixTokens[0].refreshToken;
 
         // //USER DATA
         // let currentUserData = JSON.parse(event.body);
