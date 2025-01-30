@@ -149,7 +149,7 @@ async function validateUserDiscountCode(currentUserEmail) {
 
 async function checkUserInDb(currentUser) {
     let currentUserData = await db.collection('users').where('emailAddress', '==', currentUser.email).get();
-    if (currentUserData) {
+    if (currentUserData.docs.length) {
         return true;
     } else {
         let newUser = await db.collection('users').add({
@@ -222,7 +222,8 @@ exports.handler = async (event) => {
                 eventixTokens: eventixTokens.docs,
                 currentUserSubscription: currentUserSubscription.docs,
                 users: users.docs,
-                subscriptions: subscriptions.docs
+                subscriptions: subscriptions.docs,
+                validateUserDiscountCode: validateUserDiscountCode(currentUserData.payload.email)
 
             }),
         }
