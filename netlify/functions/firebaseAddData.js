@@ -33,7 +33,7 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         const response = await fetch(url, options);
         const data = await response.json();
         const id = currentUser[0].id;
-        // const updateObj = { generatedCouponCode: true };
+        const updateObj = { generatedCouponCode: true };
 
         // await db.collection("users").doc(id).update(updateObj);
         return {
@@ -208,8 +208,8 @@ exports.handler = async (event) => {
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
 
-        // let generatedCouponCode = generateCode(currentUserSubscriptionName)
-        // let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
+        let generatedCouponCode = generateCode(currentUserSubscriptionName)
+        let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
 
 
         return {
@@ -225,7 +225,8 @@ exports.handler = async (event) => {
                 currentUserSubscriptionName: currentUserSubscriptionName,
                 checkUserInDB: checkUserInDB,
                 tokenIsValid: tokenIsValid,
-                validUserToGenerateCode: validUserToGenerateCode
+                validUserToGenerateCode: validUserToGenerateCode,
+                response: response
             }),
         }
 
