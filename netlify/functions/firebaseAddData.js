@@ -139,12 +139,15 @@ function validateToken(tokenData) {
 
 async function validateUserDiscountCode(currentUserEmail) {
     let currentUserData = await db.collection('users').where('emailAddress', '==', currentUserEmail).get();
+    return {
+        docs: currentUserData.docs,
+        docslength: currentUserData.docs.length
+    };
+    // if (currentUserData && currentUserData.generatedCouponCode) {
 
-    if (currentUserData && currentUserData.generatedCouponCode) {
-        return false;
-    } else if (currentUserData && !currentUserData.generatedCouponCode) {
-        return true;
-    }
+    // } else if (currentUserData && !currentUserData.generatedCouponCode) {
+    //     return true;
+    // }
 }
 
 async function checkUserInDb(currentUser) {
@@ -182,7 +185,7 @@ exports.handler = async (event) => {
         }
         let currentUserData = JSON.parse(event.body);
         let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
-
+        let validateUserDiscountCode = validateUserDiscountCode(currentUserData.payload.email)
         //check if the user in db if not add
         // checkUserInDb(currentUserData.payload);
 
@@ -223,7 +226,7 @@ exports.handler = async (event) => {
                 currentUserSubscription: currentUserSubscription.docs,
                 users: users.docs,
                 subscriptions: subscriptions.docs,
-                validateUserDiscountCode: validateUserDiscountCode(currentUserData.payload.email)
+                validateUserDiscountCode: validateUserDiscountCode
 
             }),
         }
