@@ -101,6 +101,7 @@ async function refreshAccessToken(eventixToken) {
         // Make the API request
         const response = await fetch("https://auth.openticket.tech/tokens", options);
         const data = await response.json();
+
         const id = eventixToken[0].id;
         // const updateObj = {
         //     accessToken: data.access_Token,
@@ -220,8 +221,7 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                response: response,
-                refreshToken: refreshToken,
+                eventixTokens: eventixTokens,
                 refreshTokenResponse: refreshTokenResponse
             }),
         }
