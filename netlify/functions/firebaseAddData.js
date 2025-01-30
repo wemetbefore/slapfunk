@@ -188,6 +188,7 @@ exports.handler = async (event) => {
         let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
 
         let checkUser = await checkUserInDb(currentUserData.payload);
+        let tokenValid = await validateToken(eventixTokens);
 
         // if (currentUserData.payload) {
         //     if (validateUserDiscountCode(currentUserData.payload.email) && validateToken(eventixTokens)) {
@@ -222,7 +223,7 @@ exports.handler = async (event) => {
                 users: users.docs,
                 subscriptions: subscriptions.docs,
                 checkUser: checkUser,
-                validateToken: validateToken(eventixTokens)
+                validateToken: tokenValid
             }),
         }
     } catch (error) {
