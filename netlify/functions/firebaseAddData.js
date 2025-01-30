@@ -190,6 +190,10 @@ exports.handler = async (event) => {
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
         let subId = currentUserSubscription.docs[0].subscriptionId;
         let accessTokenId = eventixTokens.docs[0].accessToken;
+        let params = {
+            subId: subId,
+            accessTokenId: accessTokenId
+        }
 
         // let response = generateCouponCode(currentUserSubscription.docs[0].subscriptionId, eventixTokens, generatedCouponCode, event);
 
@@ -220,8 +224,7 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                subId: subId,
-                eventixToken: accessTokenId
+                params
             }),
         }
     } catch (error) {
