@@ -214,7 +214,7 @@ exports.handler = async (event) => {
         // let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
 
 
-        let currentUserDataSnapshot = db.collection('users').where('emailAddress', '==', currentUserData.payload.email).get();
+        let currentUserDataSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.email).get();
         let currentUserDataTst = currentUserDataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
         return {
@@ -222,7 +222,7 @@ exports.handler = async (event) => {
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
                 currentUserDataTst: currentUserDataTst,
-                userlength: currentUserDataTst.length
+                userlength: currentUserDataTst
             }),
         }
 
