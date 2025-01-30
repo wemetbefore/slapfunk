@@ -141,6 +141,7 @@ async function validateToken(tokenData) {
 async function validateUserDiscountCode(currentUserEmail) {
     let currentUserDataSnapshot = await db.collection('users').where('emailAddress', '==', currentUserEmail).get();
     let currentUserData = currentUserDataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
     if (currentUserData.length && currentUserData[0].generatedCouponCode) {
         return false;
     } else if (currentUserData.length && !currentUserData[0].generatedCouponCode) {
@@ -151,6 +152,7 @@ async function validateUserDiscountCode(currentUserEmail) {
 async function checkUserInDb(currentUser) {
     let currentUserDataSnapshot = await db.collection('users').where('emailAddress', '==', currentUser.email).get();
     let currentUserData = currentUserDataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
     if (currentUserData.length) {
         return true;
     } else {
@@ -205,7 +207,7 @@ exports.handler = async (event) => {
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
 
         let generatedCouponCode = generateCode(currentUserSubscriptionName)
-        let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
+        // let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
 
 
         return {
