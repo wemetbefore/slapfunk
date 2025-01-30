@@ -5,25 +5,16 @@ const clientSecret = process.env.EVENTIX_CLIENT_SECRET;
 const code = process.env.EVENTIX_CODE_KEY;
 const companyId = process.env.EVENTIX_COMPANY_ID;
 
-async function generateCouponCode(couponId, accessToken, generatedCode) {
+async function generateCouponCode(couponId, eventixToken, generatedCode) {
     try {
-        // Parse the request body
-        const { generatedCode, accessTokenValue, couponId } = JSON.parse(event.body);
-        if (!generatedCode || accessTokenValue || !couponId) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({ error: "Missing required parameters" }),
-            };
-        }
-
         // Prepare the request options
         const url = `https://api.eventix.io/coupon/${couponId}/codes`;
         const options = {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${accessTokenValue}`,
-                "Company": companyId, // Replace with your Company ID
+                "Authorization": `Bearer ${eventixToken.docs[0].accessToken}`,
+                "Company": companyId,
             },
             body: JSON.stringify({
                 codes: [
@@ -43,6 +34,7 @@ async function generateCouponCode(couponId, accessToken, generatedCode) {
 
         // Return the generated coupon code data
         return {
+            isGenerated: true,
             statusCode: 200,
             body: JSON.stringify(data),
         };
@@ -187,18 +179,21 @@ exports.handler = async (event) => {
         let currentUserData = JSON.parse(event.body);
         let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
 
-        let checkUser = await checkUserInDb(currentUserData.payload);
-        let tokenValid = await validateToken(eventixTokens);
-        let userGeneratedCode = await validateUserDiscountCode(currentUserData.payload.email);
+        let checkUserInDB = await checkUserInDb(currentUserData.payload);
+        let tokenIsValid = await validateToken(eventixTokens);
+        let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
+
+        let response = generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
 
         // if (currentUserData.payload) {
-        //     if (validateUserDiscountCode(currentUserData.payload.email) && validateToken(eventixTokens)) {
+        //     if (validUserToGenerateCode && tokenIsValid) {
         //         //generate coupon code
         //         let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
+
         //         generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
         //         //update db users
 
-        //     } else if (validateUserDiscountCode(currentUserData.payload.email) && !validateToken(eventixTokens)) {
+        //     } else if (validUserToGenerateCode && !tokenIsValid) {
         //         //refresh token
         //         await refreshAccessToken(eventixTokens).then(async () => {
         //             let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
@@ -206,7 +201,7 @@ exports.handler = async (event) => {
         //                 //update db
         //             });
         //         });;
-        //     } else if (!validateUserDiscountCode) {
+        //     } else if (!validUserToGenerateCode) {
         //         //display alert - user already generated coupon code
         //         throw new Error("You've already generated a coupon code!");
 
@@ -217,7 +212,7 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                // couponCode: generatedCouponCode,
+                couponCode: response,
                 currentUserData: currentUserData.payload,
                 eventixTokens: eventixTokens.docs,
                 currentUserSubscription: currentUserSubscription.docs,
