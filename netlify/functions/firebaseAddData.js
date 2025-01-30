@@ -207,7 +207,7 @@ exports.handler = async (event) => {
         let currentUserSubscriptionName = currentUserSubscription[0].subscriptionName;
 
         let checkUserInDB = await checkUserInDb(currentUserData.payload);
-        let tokenIsValid = await validateToken(eventixTokens);
+        // let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
 
         let generatedCouponCode = generateCode(currentUserSubscriptionName)
@@ -219,8 +219,7 @@ exports.handler = async (event) => {
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
                 checkUserInDB: checkUserInDB,
-                data: eventixTokens,
-                validateToken: tokenIsValid
+                data: eventixTokens
             }),
         }
 
