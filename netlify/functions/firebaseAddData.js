@@ -181,14 +181,16 @@ exports.handler = async (event) => {
             };
         }
         let currentUserData = JSON.parse(event.body);
-        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).docs;
+        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).doc;
 
         //check if the user in db if not add
         // checkUserInDb(currentUserData.payload);
 
-        let eventixTokens = await db.collection('eventixTokens').docs;
-        let users = await db.collection('users').docs;
-        let subscriptions = await db.collection('subscriptions').docs;
+        let eventixTokens = await db.collection('eventixTokens').doc;
+        let users = await db.collection('users').doc;
+        let subscriptions = await db.collection('subscriptions').doc;
+        let subscriptionsTest = await db.collection('subscriptions');
+
 
         // if (currentUserData.payload) {
         //     if (validateUserDiscountCode(currentUserData.payload.email) && validateToken(eventixTokens)) {
@@ -221,7 +223,9 @@ exports.handler = async (event) => {
                 eventixTokens: eventixTokens,
                 currentUserSubscription: currentUserSubscription,
                 users: users,
-                subscriptions: subscriptions
+                subscriptions: subscriptions,
+                subscriptionsTest: subscriptionsTest.doc,
+                subscriptionsTestTest: subscriptionsTest.docs
             }),
         }
     } catch (error) {
