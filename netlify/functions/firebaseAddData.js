@@ -188,6 +188,7 @@ exports.handler = async (event) => {
 
         let eventixTokens = await db.collection('eventixTokens').get();
         let users = await db.collection('users').get();
+        let subscriptions = await db.collection('subscriptions').get();
 
         // if (currentUserData.payload) {
         //     if (validateUserDiscountCode(currentUserData.payload.email) && validateToken(eventixTokens)) {
@@ -219,7 +220,8 @@ exports.handler = async (event) => {
                 currentUserData: currentUserData.payload,
                 eventixTokens: eventixTokens,
                 currentUserSubscription: currentUserSubscription,
-                users: users
+                users: users,
+                subscriptions: subscriptions
             }),
         }
     } catch (error) {
