@@ -13,7 +13,7 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, event) 
                 headers: getCorsHeaders(event.headers.origin)
             };
         }
-        let accessTokenId = eventixToken.docs[0].accessToken;
+        let accessTokenId = eventixToken[0].accessToken;
 
         // Prepare the request options
         const url = `https://api.eventix.io/coupon/${couponId}/codes`;
@@ -127,8 +127,8 @@ function getCorsHeaders(origin) {
 }
 
 async function validateToken(tokenData) {
-    let tokenExpirationDate = tokenData.docs[0].expiryDate;
-    let nowTimeStamp = new Date();
+    let tokenExpirationDate = tokenData[0].expiryDate._seconds;
+    let nowTimeStamp = Date.now() * 1000;
 
     if (tokenExpirationDate > nowTimeStamp) {
         return true;
@@ -148,8 +148,9 @@ async function validateUserDiscountCode(currentUserEmail) {
 }
 
 async function checkUserInDb(currentUser) {
-    let currentUserData = await db.collection('users').where('emailAddress', '==', currentUser.email).get();
-    if (currentUserData.docs.length) {
+    let currentUserDataSnapshot = await db.collection('users').where('emailAddress', '==', currentUser.email).get();
+    let currentUserData = currentUserDataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    if (currentUserData.length) {
         return true;
     } else {
         let newUser = await db.collection('users').add({
@@ -183,19 +184,22 @@ exports.handler = async (event) => {
         let eventixTokensSnapshot = await db.collection('eventixTokens').get();
         let eventixTokens = eventixTokensSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         let usersSnapshot = await db.collection('users').get();
+        let users = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         let subscriptionsSnapshot = await db.collection('subscriptions').get();
+        let subscriptions = subscriptionsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
         let currentUserData = JSON.parse(event.body);
-        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
 
+        let currentUserSubscriptionSnapshot = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
+        let currentUserSubscription = currentUserSubscriptionSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         let checkUserInDB = await checkUserInDb(currentUserData.payload);
-        // let tokenIsValid = await validateToken(eventixTokens);
-        // let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
-        // let currentUserSubscriptionId = currentUserSubscription.docs[0].subscriptionId;
-        // let currentUserSubscriptionName = currentUserSubscription.docs[0].subscriptionName;
+        let tokenIsValid = await validateToken(eventixTokens);
+        let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
+        let currentUserSubscriptionId = currentUserSubscription[0].subscriptionId;
+        let currentUserSubscriptionName = currentUserSubscription[0].subscriptionName;
 
-        // let generatedCouponCode = generateCode(currentUserSubscriptionName)
-        // let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, event);
+        let generatedCouponCode = generateCode(currentUserSubscriptionName)
+        let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, event);
 
         // if (currentUserData.payload) {
         //     if (validUserToGenerateCode && tokenIsValid) {
@@ -225,12 +229,12 @@ exports.handler = async (event) => {
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
                 eventixTokens: eventixTokens,
-                // subscriptions: subscriptions,
-                // currentUserSubscriptionName: currentUserSubscriptionName,
-                // currentUserSubscriptionId: currentUserSubscriptionId,
-                // validUserToGenerateCode: validUserToGenerateCode,
-                // tokenIsValid: tokenIsValid,
-                // checkUserInDB: checkUserInDB
+                subscriptions: subscriptions,
+                currentUserSubscriptionName: currentUserSubscriptionName,
+                currentUserSubscriptionId: currentUserSubscriptionId,
+                validUserToGenerateCode: validUserToGenerateCode,
+                tokenIsValid: tokenIsValid,
+                checkUserInDB: checkUserInDB
             }),
         }
     } catch (error) {
