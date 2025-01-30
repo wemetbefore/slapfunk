@@ -181,22 +181,22 @@ exports.handler = async (event) => {
             };
         }
         let currentUserData = JSON.parse(event.body);
-        // let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.subscriptionName).get();
+        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
 
         //check if the user in db if not add
-        // checkUserInDb(currentUserData);
+        // checkUserInDb(currentUserData.payload);
 
         let eventixTokens = await db.collection('eventixTokens').get();
         let users = await db.collection('users').get();
 
-        // if (currentUserData) {
-        //     if (validateUserDiscountCode(currentUserData.email) && validateToken(eventixTokens)) {
+        // if (currentUserData.payload) {
+        //     if (validateUserDiscountCode(currentUserData.payload.email) && validateToken(eventixTokens)) {
         //         //generate coupon code
         //         let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
         //         generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
         //         //update db users
 
-        //     } else if (validateUserDiscountCode(currentUserData.email) && !validateToken(eventixTokens)) {
+        //     } else if (validateUserDiscountCode(currentUserData.payload.email) && !validateToken(eventixTokens)) {
         //         //refresh token
         //         await refreshAccessToken(eventixTokens).then(async () => {
         //             let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
@@ -216,9 +216,9 @@ exports.handler = async (event) => {
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
                 // couponCode: generatedCouponCode,
-                currentUserData: currentUserData,
+                currentUserData: currentUserData.payload,
                 eventixTokens: eventixTokens,
-                // currentUserSubscription: currentUserSubscription,
+                currentUserSubscription: currentUserSubscription,
                 users: users
             }),
         }
