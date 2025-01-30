@@ -33,13 +33,11 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         const response = await fetch(url, options);
         const data = await response.json();
 
-        if (response.ok) {
-            await db.collection("users").doc(currentUser[0].id).update({ generatedCouponCode: true });
-            return {
-                statusCode: 200,
-                body: JSON.stringify(data),
-            };
-        }
+        await db.collection("users").doc(currentUser[0].id).update({ generatedCouponCode: true });
+        return {
+            statusCode: 200,
+            body: JSON.stringify(data),
+        };
 
     } catch (error) {
         // Handle unexpected errors
@@ -98,13 +96,11 @@ async function refreshAccessToken(refreshToken, eventixToken) {
         const response = await fetch("https://auth.openticket.tech/tokens", options);
         const data = await response.json();
 
-        if (response.ok) {
-            await db.collection("eventixTokens").doc(eventixToken[0].id).update({ generatedCouponCode: true });
-            return {
-                statusCode: 200,
-                body: JSON.stringify(data),
-            };
-        }
+        await db.collection("eventixTokens").doc(eventixToken[0].id).update({ generatedCouponCode: true });
+        return {
+            statusCode: 200,
+            body: JSON.stringify(data),
+        };
     }
     catch (error) {
         return {
@@ -223,7 +219,7 @@ exports.handler = async (event) => {
         //             }),
         //         }
         //     } else if (validUserToGenerateCode && !tokenIsValid) {
-        //         let refreshToken = refreshAccessToken(refreshToken, eventixTokens);
+        //         let refreshTokenResponse = refreshAccessToken(refreshToken, eventixTokens);
         //         let generatedCouponCode = generateCode(currentUserSubscriptionName)
         //         let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
         //         return {
