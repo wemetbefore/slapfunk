@@ -142,7 +142,7 @@ async function validateUserDiscountCode(currentUserEmail) {
 
     if (currentUserData.docs.length && currentUserData.docs[0].generatedCouponCode) {
         return false;
-    } else if (currentUserData && !currentUserData.generatedCouponCode) {
+    } else if (currentUserData.docs.length && !currentUserData.docs[0].generatedCouponCode) {
         return true;
     }
 }
