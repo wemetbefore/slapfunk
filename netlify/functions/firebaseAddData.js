@@ -132,7 +132,7 @@ function getCorsHeaders(origin) {
 }
 
 async function validateToken(tokenData) {
-    let tokenExpirationDate = tokenData[0].expiryDate._seconds * 1000; // Convert to ms
+    let tokenExpirationDate = tokenData[0].expiryDate._seconds; // Convert to ms
     let nowTimeStamp = Date.now();
 
     return tokenExpirationDate > nowTimeStamp;
@@ -202,11 +202,11 @@ exports.handler = async (event) => {
         let currentUserSubscriptionId = currentUserSubscription[0].subscriptionId;
         let currentUserSubscriptionName = currentUserSubscription[0].subscriptionName;
 
-        // letestit checkUserInDB = await checkUserInDb(currentUserData.payload);
-        // let tokenIsValid = await validateToken(eventixTokens);
-        // let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
+        let checkUserInDB = await checkUserInDb(currentUserData.payload);
+        let tokenIsValid = await validateToken(eventixTokens);
+        let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
 
-        // let generatedCouponCode = generateCode(currentUserSubscriptionName)
+        let generatedCouponCode = generateCode(currentUserSubscriptionName)
         // let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
 
 
