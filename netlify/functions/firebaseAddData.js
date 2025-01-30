@@ -185,7 +185,6 @@ exports.handler = async (event) => {
         }
         let currentUserData = JSON.parse(event.body);
         let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
-        let validateUserDiscountCode = validateUserDiscountCode(currentUserData.payload.email)
         //check if the user in db if not add
         // checkUserInDb(currentUserData.payload);
 
@@ -226,7 +225,8 @@ exports.handler = async (event) => {
                 currentUserSubscription: currentUserSubscription.docs,
                 users: users.docs,
                 subscriptions: subscriptions.docs,
-                validateUserDiscountCode: validateUserDiscountCode
+                validateUserDiscountCode: validateUserDiscountCode(currentUserData.payload.email),
+                checkUserInDb: checkUserInDb(currentUserData.payload)
 
             }),
         }
