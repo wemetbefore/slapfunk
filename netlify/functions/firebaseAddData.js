@@ -56,45 +56,65 @@ async function generateCouponCode(couponId, accessToken, generatedCode) {
     }
 }
 
-async function generateAccessToken(params) {
-    const options = {
-        "method": "POST",
-        "headers": {
-            "Content-Type": "application/json",
-        },
-        "body": JSON.stringify({
-            grant_type: "authorization_code",
-            client_id: clientId, // Use environment variables for sensitive data
-            client_secret: clientSecret,
-            redirect_uri: "https://www.google.nl/", // Replace with your actual redirect URI
-            code: code
-        })
-    };
+async function generateAccessToken() {
+    try {
+        const options = {
+            "method": "POST",
+            "headers": {
+                "Content-Type": "application/json",
+            },
+            "body": JSON.stringify({
+                grant_type: "authorization_code",
+                client_id: clientId, // Use environment variables for sensitive data
+                client_secret: clientSecret,
+                redirect_uri: "https://www.google.nl/", // Replace with your actual redirect URI
+                code: code
+            })
+        };
 
-    // Make the API request
-    const response = await fetch("https://auth.openticket.tech/tokens", options);
-    // Parse the API response
-    const responseData = await response.json();
+        // Make the API request
+        const response = await fetch("https://auth.openticket.tech/tokens", options);
+        // Parse the API response
+        const responseData = await response.json();
 
-    return responseData;
+        return responseData;
+    }
+    catch (error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: error.message }),
+        };
+    }
 }
 
 async function refreshAccessToken(refreshToken) {
-    const options = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            client_id: process.env.EVENTIX_CLIENT_ID, // Use environment variables
-            client_secret: process.env.EVENTIX_CLIENT_SECRET,
-            refresh_token: refreshToken,
-            grant_type: "refresh_token"
-        })
-    };
+    try {
+        const options = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                client_id: process.env.EVENTIX_CLIENT_ID, // Use environment variables
+                client_secret: process.env.EVENTIX_CLIENT_SECRET,
+                refresh_token: refreshToken,
+                grant_type: "refresh_token"
+            })
+        };
 
-    // Make the API request
-    const response = await fetch("https://auth.openticket.tech/tokens", options);
-    // Parse the API response
-    const data = await response.json();
+        // Make the API request
+        const response = await fetch("https://auth.openticket.tech/tokens", options);
+        // Parse the API response
+        const data = await response.json();
+        //update db token
+        return true
+    }
+    catch (error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: error.message }),
+        };
+    }
+
+
 }
 
 function getCorsHeaders(origin) {
@@ -162,40 +182,45 @@ exports.handler = async (event) => {
             };
         }
         let currentUserData = event.body;
-        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.couponId).get();
+        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.subscriptionName).get();
 
         //check if the user in db if not add
         checkUserInDb(currentUserData);
 
         let eventixTokens = await db.collection('eventixTokens').get();
+        let users = await db.collection('users').get();
 
-        if (currentUserData) {
-            if (validateUserDiscountCode(currentUserData.email) && validateToken(eventixTokens)) {
-                //generate coupon code
-                let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
-                generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
-                //update db users
+        // if (currentUserData) {
+        //     if (validateUserDiscountCode(currentUserData.email) && validateToken(eventixTokens)) {
+        //         //generate coupon code
+        //         let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
+        //         generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
+        //         //update db users
 
-            } else if (validateUserDiscountCode(currentUserData.email) && !validateToken(eventixTokens)) {
-                //refresh token
-                await refreshAccessToken().then(async () => {
-                    let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
-                    await generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode).then(async () => {
-                        //update db
-                    });
-                });;
-            } else if (!validateUserDiscountCode) {
-                //display alert - user already generated coupon code
-                throw new Error("You've already generated a coupon code!");
+        //     } else if (validateUserDiscountCode(currentUserData.email) && !validateToken(eventixTokens)) {
+        //         //refresh token
+        //         await refreshAccessToken(eventixTokens).then(async () => {
+        //             let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
+        //             await generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode).then(async () => {
+        //                 //update db
+        //             });
+        //         });;
+        //     } else if (!validateUserDiscountCode) {
+        //         //display alert - user already generated coupon code
+        //         throw new Error("You've already generated a coupon code!");
 
-            }
-        }
+        //     }
+        // }
 
         return {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                couponCode: generatedCouponCode
+                couponCode: generatedCouponCode,
+                currentUserData: currentUserData,
+                eventixTokens: eventixTokens,
+                currentUserSubscription: currentUserSubscription,
+                users: users
             }),
         }
     } catch (error) {
