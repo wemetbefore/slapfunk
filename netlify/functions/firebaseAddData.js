@@ -173,22 +173,22 @@ function generateCode(subscriptionName) {
     return code;
 }
 exports.handler = async (event) => {
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers: getCorsHeaders(event.headers.origin)
-        };
-    }
     try {
+        if (event.httpMethod === 'OPTIONS') {
+            return {
+                statusCode: 200,
+                headers: getCorsHeaders(event.headers.origin)
+            };
+        }
 
         let currentUserData = event.body;
-        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.subscriptionName).get();
+        // let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.subscriptionName).get();
 
         //check if the user in db if not add
-        checkUserInDb(currentUserData);
+        // checkUserInDb(currentUserData);
 
-        let eventixTokens = await db.collection('eventixTokens').get();
-        let users = await db.collection('users').get();
+        // let eventixTokens = await db.collection('eventixTokens').get();
+        // let users = await db.collection('users').get();
 
         // if (currentUserData) {
         //     if (validateUserDiscountCode(currentUserData.email) && validateToken(eventixTokens)) {
@@ -216,11 +216,11 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                couponCode: generatedCouponCode,
+                // couponCode: generatedCouponCode,
                 currentUserData: currentUserData,
-                eventixTokens: eventixTokens,
-                currentUserSubscription: currentUserSubscription,
-                users: users
+                // eventixTokens: eventixTokens,
+                // currentUserSubscription: currentUserSubscription,
+                // users: users
             }),
         }
     } catch (error) {
