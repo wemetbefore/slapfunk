@@ -35,7 +35,7 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         const id = currentUser[0].id;
         const updateObj = { generatedCouponCode: true };
 
-        // await db.collection("users").doc(id).update(updateObj);
+        await db.collection("users").doc(id).update(updateObj);
         return {
             statusCode: 200,
             body: JSON.stringify({
@@ -211,13 +211,15 @@ exports.handler = async (event) => {
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
 
         let generatedCouponCode = generateCode(currentUserSubscriptionName)
+        let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
 
         return {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
                 data: 'working correctly',
-                checkUserInDB: checkUserInDB
+                checkUserInDB: checkUserInDB,
+                response: response
             }),
         }
 
