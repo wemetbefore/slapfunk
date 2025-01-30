@@ -189,6 +189,7 @@ exports.handler = async (event) => {
 
         let checkUser = await checkUserInDb(currentUserData.payload);
         let tokenValid = await validateToken(eventixTokens);
+        let userGeneratedCode = await validateUserDiscountCode(currentUserData.payload.email);
 
         // if (currentUserData.payload) {
         //     if (validateUserDiscountCode(currentUserData.payload.email) && validateToken(eventixTokens)) {
@@ -223,7 +224,8 @@ exports.handler = async (event) => {
                 users: users.docs,
                 subscriptions: subscriptions.docs,
                 checkUser: checkUser,
-                validateToken: tokenValid
+                validateToken: tokenValid,
+                userGeneratedCode: userGeneratedCode
             }),
         }
     } catch (error) {
