@@ -34,7 +34,6 @@ async function generateCouponCode(couponId, eventixToken, generatedCode) {
 
         // Return the generated coupon code data
         return {
-            isGenerated: true,
             statusCode: 200,
             body: JSON.stringify(data),
         };
@@ -182,8 +181,8 @@ exports.handler = async (event) => {
         let checkUserInDB = await checkUserInDb(currentUserData.payload);
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
-
-        // let response = generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
+        let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
+        let response = generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
 
         // if (currentUserData.payload) {
         //     if (validUserToGenerateCode && tokenIsValid) {
@@ -221,7 +220,7 @@ exports.handler = async (event) => {
                 // checkUser: checkUser,
                 // validateToken: tokenValid,
                 // userGeneratedCode: userGeneratedCode,
-                token: eventixTokens.docs[0].accessToken
+
             }),
         }
     } catch (error) {
