@@ -181,15 +181,14 @@ exports.handler = async (event) => {
             };
         }
         let currentUserData = JSON.parse(event.body);
-        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).doc;
+        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
 
         //check if the user in db if not add
         // checkUserInDb(currentUserData.payload);
 
-        let eventixTokens = await db.collection('eventixTokens').doc;
-        let users = await db.collection('users').doc;
-        let subscriptions = await db.collection('subscriptions').doc;
-        let subscriptionsTest = await db.collection('subscriptions');
+        let eventixTokens = await db.collection('eventixTokens').get();
+        let users = await db.collection('users').get();
+        let subscriptions = await db.collection('subscriptions').get();
 
 
         // if (currentUserData.payload) {
@@ -223,9 +222,8 @@ exports.handler = async (event) => {
                 eventixTokens: eventixTokens,
                 currentUserSubscription: currentUserSubscription,
                 users: users,
-                subscriptions: subscriptions,
-                subscriptionsTest: subscriptionsTest.doc,
-                subscriptionsTestTest: subscriptionsTest.docs
+                subscriptions: subscriptions.docs
+
             }),
         }
     } catch (error) {
