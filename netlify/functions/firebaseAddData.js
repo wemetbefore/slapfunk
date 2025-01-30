@@ -85,7 +85,7 @@ async function generateAccessToken() {
     }
 }
 
-async function refreshAccessToken(refreshToken, eventixToken) {
+async function refreshAccessToken(eventixToken) {
     try {
         const options = {
             method: "POST",
@@ -93,7 +93,7 @@ async function refreshAccessToken(refreshToken, eventixToken) {
             body: JSON.stringify({
                 client_id: clientId, // Use environment variables
                 client_secret: clientSecret,
-                refresh_token: refreshToken,
+                refresh_token: eventixToken[0].refreshToken,
                 grant_type: "refresh_token"
             })
         };
@@ -102,14 +102,14 @@ async function refreshAccessToken(refreshToken, eventixToken) {
         const response = await fetch("https://auth.openticket.tech/tokens", options);
         const data = await response.json();
         const id = eventixToken[0].id;
-        const updateObj = {
-            accessToken: data.access_Token,
-            refreshToken: data.refresh_token,
+        // const updateObj = {
+        //     accessToken: data.access_Token,
+        //     refreshToken: data.refresh_token,
 
-        };
-        if (id && updateObj && data) {
-            await db.collection("eventixTokens").doc(id).update(updateObj);
-        }
+        // };
+        // if (id && updateObj && data) {
+        //     await db.collection("eventixTokens").doc(id).update(updateObj);
+        // }
 
         return {
             statusCode: 200,
@@ -195,7 +195,6 @@ exports.handler = async (event) => {
         //EVENTIX DATA
         let eventixTokensSnapshot = await db.collection('eventixTokens').get();
         let eventixTokens = eventixTokensSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        let refreshToken = eventixTokens[0].refreshToken;
 
         // // //USER DATA
         let currentUserData = JSON.parse(event.body);
@@ -215,13 +214,14 @@ exports.handler = async (event) => {
 
         let generatedCouponCode = generateCode(currentUserSubscriptionName)
         // let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
-        let refreshTokenResponse = await refreshAccessToken(refreshToken, eventixTokens);
+        let refreshTokenResponse = await refreshAccessToken(eventixTokens);
 
         return {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
                 response: response,
+                refreshToken: refreshToken,
                 refreshTokenResponse: refreshTokenResponse
             }),
         }
