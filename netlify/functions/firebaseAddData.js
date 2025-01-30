@@ -126,7 +126,7 @@ function getCorsHeaders(origin) {
     }
 }
 
-function validateToken(tokenData) {
+async function validateToken(tokenData) {
     let tokenExpirationDate = tokenData.docs[0].expiryDate;
     let nowTimeStamp = new Date();
 
@@ -139,15 +139,12 @@ function validateToken(tokenData) {
 
 async function validateUserDiscountCode(currentUserEmail) {
     let currentUserData = await db.collection('users').where('emailAddress', '==', currentUserEmail).get();
-    return {
-        docs: currentUserData.docs,
-        docslength: currentUserData.docs.length
-    };
-    // if (currentUserData && currentUserData.generatedCouponCode) {
 
-    // } else if (currentUserData && !currentUserData.generatedCouponCode) {
-    //     return true;
-    // }
+    if (currentUserData.docs.length && currentUserData.docs[0].generatedCouponCode) {
+        return false;
+    } else if (currentUserData && !currentUserData.generatedCouponCode) {
+        return true;
+    }
 }
 
 async function checkUserInDb(currentUser) {
@@ -183,15 +180,14 @@ exports.handler = async (event) => {
                 headers: getCorsHeaders(event.headers.origin)
             };
         }
-        let currentUserData = JSON.parse(event.body);
-        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
-        //check if the user in db if not add
-        // checkUserInDb(currentUserData.payload);
-
         let eventixTokens = await db.collection('eventixTokens').get();
         let users = await db.collection('users').get();
         let subscriptions = await db.collection('subscriptions').get();
 
+        let currentUserData = JSON.parse(event.body);
+        let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
+
+        let checkUser = await checkUserInDb(currentUserData.payload);
 
         // if (currentUserData.payload) {
         //     if (validateUserDiscountCode(currentUserData.payload.email) && validateToken(eventixTokens)) {
@@ -225,9 +221,8 @@ exports.handler = async (event) => {
                 currentUserSubscription: currentUserSubscription.docs,
                 users: users.docs,
                 subscriptions: subscriptions.docs,
-                validateUserDiscountCode: validateUserDiscountCode(currentUserData.payload.email),
-                checkUserInDb: checkUserInDb(currentUserData.payload)
-
+                checkUser: checkUser,
+                validateToken: validateToken(eventixTokens)
             }),
         }
     } catch (error) {
