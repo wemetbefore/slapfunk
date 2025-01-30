@@ -180,15 +180,14 @@ exports.handler = async (event) => {
                 headers: getCorsHeaders(event.headers.origin)
             };
         }
-
-        let currentUserData = event.body;
+        let currentUserData = JSON.parse(event.body);
         // let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.subscriptionName).get();
 
         //check if the user in db if not add
         // checkUserInDb(currentUserData);
 
-        // let eventixTokens = await db.collection('eventixTokens').get();
-        // let users = await db.collection('users').get();
+        let eventixTokens = await db.collection('eventixTokens').get();
+        let users = await db.collection('users').get();
 
         // if (currentUserData) {
         //     if (validateUserDiscountCode(currentUserData.email) && validateToken(eventixTokens)) {
@@ -218,9 +217,9 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 // couponCode: generatedCouponCode,
                 currentUserData: currentUserData,
-                // eventixTokens: eventixTokens,
+                eventixTokens: eventixTokens,
                 // currentUserSubscription: currentUserSubscription,
-                // users: users
+                users: users
             }),
         }
     } catch (error) {
