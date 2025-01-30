@@ -44,7 +44,6 @@ async function generateCouponCode(couponId, accessToken, generatedCode) {
         // Return the generated coupon code data
         return {
             statusCode: 200,
-            headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify(data),
         };
     } catch (error) {
@@ -174,13 +173,14 @@ function generateCode(subscriptionName) {
     return code;
 }
 exports.handler = async (event) => {
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers: getCorsHeaders(event.headers.origin)
+        };
+    }
     try {
-        if (event.httpMethod === 'OPTIONS') {
-            return {
-                statusCode: 200,
-                headers: getCorsHeaders(event.headers.origin)
-            };
-        }
+
         let currentUserData = event.body;
         let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.subscriptionName).get();
 
