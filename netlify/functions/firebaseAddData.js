@@ -189,10 +189,10 @@ exports.handler = async (event) => {
         let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
 
         let checkUserInDB = await checkUserInDb(currentUserData.payload);
-        let tokenIsValid = await validateToken(eventixTokens);
-        let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
-        let currentUserSubscriptionId = currentUserSubscription.docs[0].subscriptionId;
-        let currentUserSubscriptionName = currentUserSubscription.docs[0].subscriptionName;
+        // let tokenIsValid = await validateToken(eventixTokens);
+        // let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
+        // let currentUserSubscriptionId = currentUserSubscription.docs[0].subscriptionId;
+        // let currentUserSubscriptionName = currentUserSubscription.docs[0].subscriptionName;
 
         // let generatedCouponCode = generateCode(currentUserSubscriptionName)
         // let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, event);
