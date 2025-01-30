@@ -183,7 +183,7 @@ exports.handler = async (event) => {
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
 
-        let response = generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
+        // let response = generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
 
         // if (currentUserData.payload) {
         //     if (validUserToGenerateCode && tokenIsValid) {
@@ -212,7 +212,7 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                couponCode: response,
+                // couponCode: response,
                 currentUserData: currentUserData.payload,
                 eventixTokens: eventixTokens.docs,
                 currentUserSubscription: currentUserSubscription.docs,
@@ -220,7 +220,8 @@ exports.handler = async (event) => {
                 subscriptions: subscriptions.docs,
                 checkUser: checkUser,
                 validateToken: tokenValid,
-                userGeneratedCode: userGeneratedCode
+                userGeneratedCode: userGeneratedCode,
+                token: eventixTokens.docs[0].accessToken
             }),
         }
     } catch (error) {
