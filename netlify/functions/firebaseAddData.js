@@ -150,13 +150,13 @@ async function validateUserDiscountCode(currentUserEmail) {
 }
 
 async function checkUserInDb(currentUser) {
-    let currentUserDataSnapshot = await db.collection('users').where('emailAddress', '==', currentUser.email).get();
+    let currentUserDataSnapshot = db.collection('users').where('emailAddress', '==', currentUser.email).get();
     let currentUserData = currentUserDataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     if (currentUserData.length) {
         return true;
     } else {
-        let newUser = await db.collection('users').add({
+        let newUser = db.collection('users').add({
             emailAddress: currentUser.email,
             firstName: currentUser.firstName,
             lastName: currentUser.lastName,
@@ -223,8 +223,7 @@ exports.handler = async (event) => {
                 currentUserSubscriptionName: currentUserSubscriptionName,
                 checkUserInDB: checkUserInDB,
                 tokenIsValid: tokenIsValid,
-                validUserToGenerateCode: validUserToGenerateCode,
-                response: response
+                validUserToGenerateCode: validUserToGenerateCode
             }),
         }
 
