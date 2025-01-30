@@ -221,7 +221,6 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                data: eventixTokens,
                 currentUserDataTst: currentUserDataTst,
                 userlength: currentUserDataTst.length
             }),
