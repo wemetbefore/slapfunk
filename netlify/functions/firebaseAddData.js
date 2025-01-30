@@ -222,6 +222,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
+            params: params,
             body: JSON.stringify({
                 params: params
             }),
