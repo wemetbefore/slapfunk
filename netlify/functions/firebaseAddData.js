@@ -103,14 +103,14 @@ async function refreshAccessToken(eventixToken) {
         const data = await response.json();
 
         const id = eventixToken[0].id;
-        // const updateObj = {
-        //     accessToken: data.access_token,
-        //     refreshToken: data.refresh_token,
-        //     expiryDate: new Date(Date.now() + data.expires_in * 1000)
-        // };
-        // if (id && updateObj && data) {
-        //     await db.collection("eventixTokens").doc(id).update(updateObj);
-        // }
+        const updateObj = {
+            accessToken: data.access_token,
+            refreshToken: data.refresh_token,
+            expiryDate: new Date(Date.now() + data.expires_in * 1000)
+        };
+        if (id && updateObj && data) {
+            await db.collection("eventixTokens").doc(id).update(updateObj);
+        }
 
         return {
             statusCode: 200,
