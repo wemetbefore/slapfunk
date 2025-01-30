@@ -191,9 +191,9 @@ exports.handler = async (event) => {
         let refreshToken = eventixTokens[0].refreshToken;
 
         // //USER DATA
-        // let currentUserData = JSON.parse(event.body);
-        // let usersSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.email).get();
-        // let currentUser = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        let currentUserData = JSON.parse(event.body);
+        let usersSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.email).get();
+        let currentUser = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
 
         // //SUBSCRIPTION DATA
