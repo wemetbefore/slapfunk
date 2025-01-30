@@ -132,7 +132,7 @@ function getCorsHeaders(origin) {
 }
 
 async function validateToken(tokenData) {
-    let tokenExpirationDate = tokenData[0].expiryDate._miliseconds * 1000; // Convert to ms
+    let tokenExpirationDate = tokenData[0].expiryDate._seconds * 1000; // Convert to ms
     let nowTimeStamp = Date.now();
 
     return tokenExpirationDate > nowTimeStamp;
@@ -214,16 +214,7 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                eventixTokens: eventixTokens,
-                refreshToken: refreshToken,
-                currentUser: currentUser,
-                currentUserData: currentUserData,
-                currentUserSubscription: currentUserSubscription,
-                currentUserSubscriptionId: currentUserSubscriptionId,
-                currentUserSubscriptionName: currentUserSubscriptionName,
-                checkUserInDB: checkUserInDB,
-                tokenIsValid: tokenIsValid,
-                validUserToGenerateCode: validUserToGenerateCode
+
             }),
         }
 
