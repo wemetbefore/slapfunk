@@ -218,9 +218,9 @@ exports.handler = async (event) => {
                 currentUserSubscription: currentUserSubscription.docs,
                 users: users.docs,
                 subscriptions: subscriptions.docs,
-                checkUser: checkUser,
-                validateToken: tokenValid,
-                userGeneratedCode: userGeneratedCode,
+                // checkUser: checkUser,
+                // validateToken: tokenValid,
+                // userGeneratedCode: userGeneratedCode,
                 token: eventixTokens.docs[0].accessToken
             }),
         }
