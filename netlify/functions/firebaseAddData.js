@@ -180,9 +180,10 @@ exports.handler = async (event) => {
                 headers: getCorsHeaders(event.headers.origin)
             };
         }
-        let eventixTokens = await db.collection('eventixTokens').get();
-        let users = await db.collection('users').get();
-        let subscriptions = await db.collection('subscriptions').get();
+        let eventixTokensSnapshot = await db.collection('eventixTokens').get();
+        let eventixTokens = eventixTokensSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        let usersSnapshot = await db.collection('users').get();
+        let subscriptionsSnapshot = await db.collection('subscriptions').get();
 
         let currentUserData = JSON.parse(event.body);
         let currentUserSubscription = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
@@ -224,12 +225,12 @@ exports.handler = async (event) => {
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
                 eventixTokens: eventixTokens,
-                subscriptions: subscriptions,
-                currentUserSubscriptionName: currentUserSubscriptionName,
-                currentUserSubscriptionId: currentUserSubscriptionId,
-                validUserToGenerateCode: validUserToGenerateCode,
-                tokenIsValid: tokenIsValid,
-                checkUserInDB: checkUserInDB
+                // subscriptions: subscriptions,
+                // currentUserSubscriptionName: currentUserSubscriptionName,
+                // currentUserSubscriptionId: currentUserSubscriptionId,
+                // validUserToGenerateCode: validUserToGenerateCode,
+                // tokenIsValid: tokenIsValid,
+                // checkUserInDB: checkUserInDB
             }),
         }
     } catch (error) {
