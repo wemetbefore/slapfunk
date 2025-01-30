@@ -186,25 +186,25 @@ exports.handler = async (event) => {
         }
 
         //EVENTIX DATA
-        let eventixTokensSnapshot = await db.collection('eventixTokens').get();
-        let eventixTokens = eventixTokensSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        let refreshToken = eventixTokens[0].refreshToken;
+        // let eventixTokensSnapshot = await db.collection('eventixTokens').get();
+        // let eventixTokens = eventixTokensSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        // let refreshToken = eventixTokens[0].refreshToken;
 
-        //USER DATA
-        let currentUserData = JSON.parse(event.body);
-        let usersSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.email).get();
-        let currentUser = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        // //USER DATA
+        // let currentUserData = JSON.parse(event.body);
+        // let usersSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.email).get();
+        // let currentUser = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
 
-        //SUBSCRIPTION DATA
-        let currentUserSubscriptionSnapshot = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
-        let currentUserSubscription = currentUserSubscriptionSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        let currentUserSubscriptionId = currentUserSubscription[0].subscriptionId;
-        let currentUserSubscriptionName = currentUserSubscription[0].subscriptionName;
+        // //SUBSCRIPTION DATA
+        // let currentUserSubscriptionSnapshot = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
+        // let currentUserSubscription = currentUserSubscriptionSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        // let currentUserSubscriptionId = currentUserSubscription[0].subscriptionId;
+        // let currentUserSubscriptionName = currentUserSubscription[0].subscriptionName;
 
-        let checkUserInDB = await checkUserInDb(currentUserData.payload);
-        let tokenIsValid = await validateToken(eventixTokens);
-        let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
+        // let checkUserInDB = await checkUserInDb(currentUserData.payload);
+        // let tokenIsValid = await validateToken(eventixTokens);
+        // let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
 
         // let generatedCouponCode = generateCode(currentUserSubscriptionName)
         // let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
