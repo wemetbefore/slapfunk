@@ -33,12 +33,15 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         const response = await fetch(url, options);
         const data = await response.json();
         const id = currentUser[0].id;
-        const updateObj = { generatedCouponCode: true };
+        // const updateObj = { generatedCouponCode: true };
 
-        await db.collection("users").doc(id).update(updateObj);
+        // await db.collection("users").doc(id).update(updateObj);
         return {
             statusCode: 200,
-            body: JSON.stringify(data),
+            body: JSON.stringify({
+                data: data,
+                id: id
+            }),
         };
 
     } catch (error) {
@@ -116,8 +119,6 @@ async function refreshAccessToken(refreshToken, eventixToken) {
             body: JSON.stringify({ error: error.message }),
         };
     }
-
-
 }
 
 function getCorsHeaders(origin) {
@@ -185,31 +186,47 @@ exports.handler = async (event) => {
                 headers: getCorsHeaders(event.headers.origin)
             };
         }
+
+        //EVENTIX DATA
         let eventixTokensSnapshot = await db.collection('eventixTokens').get();
         let eventixTokens = eventixTokensSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        let refreshToken = eventixTokens[0].refreshToken;
+
+        //USER DATA
         let usersSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.email).get();
         let currentUser = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
         let currentUserData = JSON.parse(event.body);
 
+        //SUBSCRIPTION DATA
         let currentUserSubscriptionSnapshot = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
         let currentUserSubscription = currentUserSubscriptionSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        let currentUserSubscriptionId = currentUserSubscription[0].subscriptionId;
+        let currentUserSubscriptionName = currentUserSubscription[0].subscriptionName;
+
         let checkUserInDB = await checkUserInDb(currentUserData.payload);
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
-        let currentUserSubscriptionId = currentUserSubscription[0].subscriptionId;
-        let currentUserSubscriptionName = currentUserSubscription[0].subscriptionName;
-        let refreshToken = eventixTokens[0].refreshToken;
+
+
+
+        // let generatedCouponCode = generateCode(currentUserSubscriptionName)
+        // let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
+
 
         return {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                nowMilliseconds: Date.now(),
-                expiryDateTokenSeconds: eventixTokens[0].expiryDate._seconds,
-                expiryDateTokenNanoSeconds: eventixTokens[0].expiryDate._nanoseconds,
-                currentUser: currentUser,
                 eventixTokens: eventixTokens,
+                refreshToken: refreshToken,
+                currentUser: currentUser,
+                currentUserData: currentUserData,
+                currentUserSubscription: currentUserSubscription,
+                currentUserSubscriptionId: currentUserSubscriptionId,
+                currentUserSubscriptionName: currentUserSubscriptionName,
+                checkUserInDB: checkUserInDB,
+                tokenIsValid: tokenIsValid,
+                validUserToGenerateCode: validUserToGenerateCode
             }),
         }
 
