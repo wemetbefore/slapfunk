@@ -219,9 +219,9 @@ exports.handler = async (event) => {
             body: JSON.stringify({
                 // couponCode: generatedCouponCode,
                 currentUserData: currentUserData.payload,
-                eventixTokens: eventixTokens,
-                currentUserSubscription: currentUserSubscription,
-                users: users,
+                eventixTokens: eventixTokens.docs,
+                currentUserSubscription: currentUserSubscription.docs,
+                users: users.docs,
                 subscriptions: subscriptions.docs
 
             }),
