@@ -182,7 +182,7 @@ exports.handler = async (event) => {
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
         let generatedCouponCode = generateCode(currentUserSubscription.subscriptionName)
-        let response = generateCouponCode(currentUserSubscription.subscriptionId, eventixTokens, generatedCouponCode);
+        let response = generateCouponCode(currentUserSubscription.docs[0].subscriptionId, eventixTokens, generatedCouponCode);
 
         // if (currentUserData.payload) {
         //     if (validUserToGenerateCode && tokenIsValid) {
