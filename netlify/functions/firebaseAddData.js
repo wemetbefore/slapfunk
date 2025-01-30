@@ -154,7 +154,7 @@ async function validateUserDiscountCode(currentUserEmail) {
 }
 
 async function checkUserInDb(currentUser) {
-    let currentUserDataSnapshot = db.collection('users').where('emailAddress', '==', currentUser.email).get();
+    let currentUserDataSnapshot = await db.collection('users').where('emailAddress', '==', currentUser.email).get();
     let currentUserData = currentUserDataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     if (currentUserData.length) {
@@ -206,7 +206,7 @@ exports.handler = async (event) => {
         let currentUserSubscriptionId = currentUserSubscription[0].subscriptionId;
         let currentUserSubscriptionName = currentUserSubscription[0].subscriptionName;
 
-        // let checkUserInDB = await checkUserInDb(currentUserData.payload);
+        let checkUserInDB = await checkUserInDb(currentUserData.payload);
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
 
@@ -216,7 +216,8 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                data: 'working correctly'
+                data: 'working correctly',
+                checkUserInDB: checkUserInDB
             }),
         }
 
