@@ -13,13 +13,15 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, event) 
                 headers: getCorsHeaders(event.headers.origin)
             };
         }
+        let accessTokenId = eventixToken.docs[0].accessToken;
+
         // Prepare the request options
         const url = `https://api.eventix.io/coupon/${couponId}/codes`;
         const options = {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${eventixToken.docs[0].accessToken}`,
+                "Authorization": `Bearer ${accessTokenId}`,
                 "Company": companyId,
             },
             body: JSON.stringify({
@@ -188,14 +190,11 @@ exports.handler = async (event) => {
         let checkUserInDB = await checkUserInDb(currentUserData.payload);
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.email);
-        let subId = currentUserSubscription.docs[0].subscriptionId;
-        let accessTokenId = eventixTokens.docs[0].accessToken;
-        let params = {
-            subId: subId,
-            accessTokenId: accessTokenId
-        }
+        let currentUserSubscriptionId = currentUserSubscription.docs[0].subscriptionId;
+        let currentUserSubscriptionName = currentUserSubscription.docs[0].subscriptionId;
 
-        // let response = generateCouponCode(currentUserSubscription.docs[0].subscriptionId, eventixTokens, generatedCouponCode, event);
+        let generatedCouponCode = generateCode(currentUserSubscriptionName)
+        let response = generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, event);
 
         // if (currentUserData.payload) {
         //     if (validUserToGenerateCode && tokenIsValid) {
@@ -224,7 +223,9 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: getCorsHeaders(event.headers.origin),
             body: JSON.stringify({
-                params
+                eventixTokens: eventixTokens,
+                subscriptions: subscriptions,
+                response: response
             }),
         }
     } catch (error) {
