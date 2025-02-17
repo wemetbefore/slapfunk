@@ -6,7 +6,7 @@ const clientSecret = process.env.EVENTIX_CLIENT_SECRET;
 const code = process.env.EVENTIX_CODE_KEY;
 const companyId = process.env.EVENTIX_COMPANY_ID;
 
-async function generateCouponCode(couponId, eventixToken, generatedCode, currentUser) {
+async function generateCouponCode(couponId, eventixToken, generatedCode, currentUser, itemId) {
     try {
         let accessTokenId = eventixToken[0].accessToken;
 
@@ -35,10 +35,9 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         const data = await response.json();
 
         const id = currentUser[0].id;
-        // const eventListUpdated = currentUser[0].eventListDiscounted.push(itemId);
         const updateObj = {
             generatedCouponCode: true,
-            // eventListDiscounted: eventListUpdated
+            eventListDiscounted: currentUser[0].eventListDiscounted.push(itemId);
         };
 
         if (id && updateObj && data) {
@@ -227,7 +226,7 @@ exports.handler = async (event) => {
         if (currentUserData.payload) {
             if (validUserToGenerateCode && tokenIsValid) {
                 let generatedCouponCode = generateCode(currentUserSubscriptionName)
-                let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
+                let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser, currentUserData.payload.itemId);
 
                 if (generateCouponCode && response.statusCode == 200) {
                     return {
@@ -243,7 +242,7 @@ exports.handler = async (event) => {
             } else if (validUserToGenerateCode && !tokenIsValid) {
                 let refreshTokenResponse = await refreshAccessToken(eventixTokens);
                 let generatedCouponCode = generateCode(currentUserSubscriptionName)
-                let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
+                let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser, currentUserData.payload.itemId);
 
                 if (generateCouponCode && response.statusCode == 200) {
                     return {
