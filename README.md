@@ -1,8 +1,3 @@
-Based on the available information, the `wmb-slapfunk` repository appears to be a project developed by We Met Before for SlapFunk Records. The repository includes serverless functions, likely intended to support SlapFunk's online presence, such as their event listings and music releases.
-
-Here's a sample `README.md` file for the repository:
-
-```markdown
 # WMB SlapFunk Project
 
 This repository contains the source code for the SlapFunk Records website, developed by [We Met Before](https://wemetbefore.com). The project utilizes serverless functions to manage dynamic content and interactions on the site.
@@ -69,5 +64,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - [We Met Before](https://wemetbefore.com) for development and design.
 - [SlapFunk Records](https://www.slapfunk.com) for their collaboration and support.
 ```
-
-This `README.md` provides an overview of the project, setup instructions, deployment guidelines, and acknowledgments. For more detailed information, please refer to the repository's source code and associated documentation. 
