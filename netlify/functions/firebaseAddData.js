@@ -37,7 +37,7 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         const id = currentUser[0].id;
         const updateObj = {
             generatedCouponCode: true,
-            eventListDiscounted: currentUser[0].eventListDiscounted.push(itemId);
+            eventListDiscounted: currentUser[0].eventListDiscounted.push(itemId)
         };
 
         if (id && updateObj && data) {
