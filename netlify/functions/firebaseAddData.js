@@ -211,8 +211,8 @@ exports.handler = async (event) => {
         let usersSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.emailAddress.emailAddress).get();
         let currentUser = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-        console.log("Current User: ", currentUser);
-        console.log("CurrentUserData: ", currentUserData);
+        localStorage.setItem("Current User", currentUser);
+        localStorage.setitem("CurrentUserData", currentUserData);
 
 
         // //SUBSCRIPTION DATA
