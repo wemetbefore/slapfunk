@@ -35,10 +35,10 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         const data = await response.json();
 
         const id = currentUser[0].id;
-        const eventListUpdated = currentUser[0].eventListDiscounted.push(itemId);
+        // const eventListUpdated = currentUser[0].eventListDiscounted.push(itemId);
         const updateObj = {
             generatedCouponCode: true,
-            eventListDiscounted: eventListUpdated
+            // eventListDiscounted: eventListUpdated
         };
 
         if (id && updateObj && data) {
@@ -179,7 +179,8 @@ async function checkUserInDb(currentUser) {
             emailAddress: currentUser.emailAddress.emailAddress,
             firstName: currentUser.firstName,
             lastName: currentUser.lastName,
-            generatedCouponCode: false
+            generatedCouponCode: false,
+            eventListDiscounted: []
         })
         return false;
     }
@@ -223,65 +224,49 @@ exports.handler = async (event) => {
         let tokenIsValid = await validateToken(eventixTokens);
         let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.emailAddress.emailAddress, currentUserData.payload.itemId);
 
+        if (currentUserData.payload) {
+            if (validUserToGenerateCode && tokenIsValid) {
+                let generatedCouponCode = generateCode(currentUserSubscriptionName)
+                let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
 
-        return {
-            statusCode: 200,
-            headers: getCorsHeaders(event.headers.origin),
-            body: JSON.stringify({
-                couponCode: '',
-                message: 'Sorry, you already generated a Discount Code!',
-                currentUserData: currentUserData,
-                currentUser: currentUser,
-                validUserToGenerateCode: validUserToGenerateCode,
-                checkUserInDB: checkUserInDB,
-                tokenIsValid: tokenIsValid
+                if (generateCouponCode && response.statusCode == 200) {
+                    return {
+                        statusCode: 200,
+                        headers: getCorsHeaders(event.headers.origin),
+                        body: JSON.stringify({
+                            couponCode: generatedCouponCode,
+                            message: 'Hey, here is your Discount Code!'
+                        }),
+                    }
+                }
 
-            }),
+            } else if (validUserToGenerateCode && !tokenIsValid) {
+                let refreshTokenResponse = await refreshAccessToken(eventixTokens);
+                let generatedCouponCode = generateCode(currentUserSubscriptionName)
+                let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
+
+                if (generateCouponCode && response.statusCode == 200) {
+                    return {
+                        statusCode: 200,
+                        headers: getCorsHeaders(event.headers.origin),
+                        body: JSON.stringify({
+                            couponCode: generatedCouponCode,
+                            message: 'Hey, here is your Discount Code!'
+                        }),
+                    }
+                }
+            } else if (!validUserToGenerateCode) {
+                //display alert - user already generated coupon code
+                return {
+                    statusCode: 200,
+                    headers: getCorsHeaders(event.headers.origin),
+                    body: JSON.stringify({
+                        couponCode: '',
+                        message: 'Sorry, you already generated a Discount Code!'
+                    }),
+                }
+            }
         }
-
-        // if (currentUserData.payload) {
-        //     if (validUserToGenerateCode && tokenIsValid) {
-        //         let generatedCouponCode = generateCode(currentUserSubscriptionName)
-        //         let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
-
-        //         if (generateCouponCode && response.statusCode == 200) {
-        //             return {
-        //                 statusCode: 200,
-        //                 headers: getCorsHeaders(event.headers.origin),
-        //                 body: JSON.stringify({
-        //                     couponCode: generatedCouponCode,
-        //                     message: 'Hey, here is your Discount Code!'
-        //                 }),
-        //             }
-        //         }
-
-        //     } else if (validUserToGenerateCode && !tokenIsValid) {
-        //         let refreshTokenResponse = await refreshAccessToken(eventixTokens);
-        //         let generatedCouponCode = generateCode(currentUserSubscriptionName)
-        //         let response = await generateCouponCode(currentUserSubscriptionId, eventixTokens, generatedCouponCode, currentUser);
-
-        //         if (generateCouponCode && response.statusCode == 200) {
-        //             return {
-        //                 statusCode: 200,
-        //                 headers: getCorsHeaders(event.headers.origin),
-        //                 body: JSON.stringify({
-        //                     couponCode: generatedCouponCode,
-        //                     message: 'Hey, here is your Discount Code!'
-        //                 }),
-        //             }
-        //         }
-        //     } else if (!validUserToGenerateCode) {
-        //         //display alert - user already generated coupon code
-        //         return {
-        //             statusCode: 200,
-        //             headers: getCorsHeaders(event.headers.origin),
-        //             body: JSON.stringify({
-        //                 couponCode: '',
-        //                 message: 'Sorry, you already generated a Discount Code!'
-        //             }),
-        //         }
-        //     }
-        // }
     } catch (error) {
         return {
             statusCode: 500,
