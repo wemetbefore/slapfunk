@@ -35,7 +35,10 @@ async function generateCouponCode(couponId, eventixToken, generatedCode, current
         const data = await response.json();
 
         const id = currentUser[0].id;
-        const updateObj = { generatedCouponCode: true };
+        const eventListUpdated = currentUser[0].eventListDiscounted.push(itemId);
+        const updateObj = { generatedCouponCode: true,
+            eventListDiscounted: eventListUpdated
+        };
 
         if (id && updateObj && data) {
             await db.collection("users").doc(id).update(updateObj);
@@ -147,13 +150,19 @@ async function validateToken(tokenData) {
     }
 }
 
-async function validateUserDiscountCode(currentUserEmail) {
+async function validateUserDiscountCode(currentUserEmail, itemId) {
     let currentUserDataSnapshot = await db.collection('users').where('emailAddress', '==', currentUserEmail).get();
     let currentUserData = currentUserDataSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-    if (currentUserData.length && currentUserData[0].generatedCouponCode) {
+    // if (currentUserData.length && currentUserData[0].generatedCouponCode) {
+    //     return false;
+    // } else if (currentUserData.length && !currentUserData[0].generatedCouponCode) {
+    //     return true;
+    // }
+
+    if (currentUserData.length && currentUserData[0].eventListDiscounted.includes(itemId)) {
         return false;
-    } else if (currentUserData.length && !currentUserData[0].generatedCouponCode) {
+    } else if (currentUserData.length && !currentUserData[0].eventListDiscounted.includes(itemId)) {
         return true;
     }
 }
@@ -202,6 +211,9 @@ exports.handler = async (event) => {
         let usersSnapshot = await db.collection('users').where('emailAddress', '==', currentUserData.payload.emailAddress.emailAddress).get();
         let currentUser = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
+        console.log("Current User: ", currentUser);
+        console.log("CurrentUserData: ", currentUserData);
+
 
         // //SUBSCRIPTION DATA
         let currentUserSubscriptionSnapshot = await db.collection('subscriptions').where('subscriptionName', '==', currentUserData.payload.subscriptionName).get();
@@ -211,7 +223,7 @@ exports.handler = async (event) => {
 
         let checkUserInDB = await checkUserInDb(currentUserData.payload);
         let tokenIsValid = await validateToken(eventixTokens);
-        let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.emailAddress.emailAddress);
+        let validUserToGenerateCode = await validateUserDiscountCode(currentUserData.payload.emailAddress.emailAddress, currentUserData.payload.itemId);
 
         if (currentUserData.payload) {
             if (validUserToGenerateCode && tokenIsValid) {
